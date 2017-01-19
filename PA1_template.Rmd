@@ -1,9 +1,7 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 author: "Ahmed Moatasem"
-output: 
-  html_document:
-    keep_md: true
+output: html_document
 date: January 19, 2017
 ---
 
