@@ -1,16 +1,12 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Ahmed Moatasem"
-output: 
-  html_document:
-    keep_md: true
-date: January 19, 2017
----
+# Reproducible Research: Peer Assessment 1
+Ahmed Moatasem  
+January 19, 2017  
 
 ## Loading and preprocessing the data
 * unzipping file and read data
 * Date column transformation to POSIXct format for convience.
-```{r, echo=TRUE}
+
+```r
 unzip(zipfile = "activity.zip")
 data <- read.csv("activity.csv")
 data$date <- as.POSIXct(data$date)
@@ -20,20 +16,43 @@ data$date <- as.POSIXct(data$date)
 ## Mean of total number of steps taken per day
 
 ##### Total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 stepsPerDay <- tapply(data$steps, data$date, sum, na.rm = TRUE)
 ```
 
 ##### Histogram of the total number of steps taken each day
-```{r, echo=TRUE}
+
+```r
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.2.5
+```
+
+```r
 qplot(stepsPerDay, geom = "histogram", xlab = "Steps Taken Frequency Per Day",  binwidth = 1000)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 ##### Mean and Median of the total number of steps taken per day
-```{r, echo=TRUE}
+
+```r
 mean(stepsPerDay, na.rm = TRUE)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median(stepsPerDay, na.rm = TRUE)
+```
+
+```
+## [1] 10395
 ```
 
 
@@ -41,25 +60,43 @@ median(stepsPerDay, na.rm = TRUE)
 ## Average daily activity pattern
 
 #### plot of averaged steps by interval
-```{r, echo=TRUE}
+
+```r
 stepsInterval <- aggregate(steps ~ interval, data, mean, na.rm = TRUE)
 plot(stepsInterval$interval, stepsInterval$steps, type="l", xlab="Interval", ylab="Steps", xlim = c(0,2300))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
 steps_by_interval <- aggregate(steps ~ interval, data, mean)
 ```
 
 #### get maximum number of steps on the averaged steps-interval
-```{r, echo=TRUE}
+
+```r
 stepsInterval[which.max(stepsInterval$steps),]
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
 ```
 
 
 ## Imputing missing values
 #### number of rows with missing values in the dataset
-```{r, echo=TRUE}
+
+```r
 sum(!complete.cases(data))
 ```
+
+```
+## [1] 2304
+```
 #### filling missing values of steps by interval mean, and creating new filled dataset
-```{r, echo=TRUE}
+
+```r
 intervalMeans <- tapply(data$steps, data$interval, mean, na.rm = TRUE)
 newData <- data
 for(i in 1:nrow(newData))
@@ -75,16 +112,31 @@ for(i in 1:nrow(newData))
 
 #### Steps taken per day new Histogram after filling NAs
 
-```{r, echo=TRUE}
+
+```r
 stepsAfterFill <- tapply(newData$steps, newData$date, FUN = sum)
 qplot(stepsAfterFill, binwidth = 1000, xlab = "total number of steps taken each day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 #### new mean and median after imputting missing values
 
-```{r, echo=TRUE}
+
+```r
 mean(stepsAfterFill, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(stepsAfterFill, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
 ```
 * Median and Mean are different from there original values before removing NAs.
 * Affected the histogram that days with most NAs are set to 0s so they doesn't appear on the chart. 
@@ -93,7 +145,8 @@ median(stepsAfterFill, na.rm = TRUE)
 
 
 #### Factorize data by weekday and weekend
-```{r, echo=TRUE}
+
+```r
 days <- character()
 for(j in 1:nrow(newData))
 {
@@ -109,7 +162,8 @@ newData$day <- as.factor(days)
 ```
 
 #### Compare average steps on intervals between weekdays and weekends
-```{r, echo=TRUE}
+
+```r
 avgStpsIntsByDay <- aggregate(steps ~ interval + day, data=newData, mean)
 ggplot(avgStpsIntsByDay, aes(interval, steps)) + 
     geom_line() + 
@@ -117,3 +171,5 @@ ggplot(avgStpsIntsByDay, aes(interval, steps)) +
     ylab("avarage steps") +
     xlab("5-min interval") 
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
